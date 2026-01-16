@@ -1,0 +1,474 @@
+:root {
+  --blue-primary: #0F172A; /* Um azul mais profundo e luxuoso */
+  --blue-secondary: #334155;
+  --off-white: #F8F9FA;
+  --white: #FFFFFF;
+  --gray-text: #334155;
+  --gray-light: #94A3B8;
+  --gold: #B59410; /* Dourado mais sofisticado */
+  --gold-light: #D4AF37;
+  --transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  overflow-x: hidden; /* Trava absoluta: nada pode passar da largura da tela */
+}
+
+body {
+  background: var(--off-white);
+  color: var(--gray-text);
+  font-family: 'Inter', sans-serif;
+  line-height: 1.6;
+}
+
+.container {
+  width: 90%;
+  max-width: 1200px;
+  margin: auto;
+}
+
+/* --- ESTILOS GERAIS DO HEADER --- */
+.header {
+  height: 100px;
+  background: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  align-items: center;
+}
+
+.nav-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+/* BUSCA ELEGANTE */
+.search-bar {
+  flex: 1;
+  max-width: 400px;
+  display: flex;
+  background: #f5f5f5;
+  border-radius: 4px;
+  padding: 5px 15px;
+}
+
+.search-bar input {
+  width: 100%;
+  border: none;
+  background: none;
+  outline: none;
+  padding: 8px;
+  font-size: 14px;
+}
+
+.search-bar button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+
+/* NAV ACTIONS (Menu + Carrinho) */
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+}
+
+/* --- COMPORTAMENTO DESKTOP --- */
+.menu-toggle { display: none; } /* Esconde botão no PC */
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  transition: hover;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: var(--blue-primary);
+  font-weight: 500;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: var(--transition);
+}
+
+.nav-links a:hover {
+  color: var(--gold);
+}
+
+
+.cart-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  position: relative;
+  cursor: pointer;
+}
+
+.badge {
+  position: absolute;
+  top: -5px;
+  right: -8px;
+  background: var(--gold);
+  color: white;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 50%;
+}
+
+/* Estilo da Logo (Global/Desktop) */
+.logo {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.logo img {
+  height: 100px; /* Sugestão: 20px é muito pequeno, aumentei para 40px */
+  width: auto;
+  display: block;
+  object-fit: contain;
+}
+
+/* --- COMPORTAMENTO MOBILE (Até 900px) --- */
+@media (max-width: 900px) {
+  .header { 
+    height: 100px;
+    position: relative; /* Remove o sticky: o header vai subir e sumir ao rolar a página */
+  }
+
+  .menu-toggle {
+    display: block; /* Mostra o botão no Mobile */
+    background: var(--blue-primary);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer; /* Faz aparecer a mãozinha ao passar o mouse */
+  }
+
+  /* Ajuste específico para Mobile */
+  .logo img {
+    height: 50px;
+  }
+
+
+
+  /* Transforma o Nav em Dropdown Suspenso */
+  .nav-links {
+    display: none; /* Esconde a lista horizontal */
+    position: absolute;
+    top: 100px; /* Alinha com a parte de baixo do header (que tem 100px) */
+    right: 0;
+    background: white;
+    flex-direction: column;
+    width: 180px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    border: 1px solid #eee;
+    gap: 0;
+    z-index: 1100; /* Garante que o menu fique acima de tudo */
+  }
+
+  /* Classe para abrir o menu */
+  .nav-links.active {
+    display: flex !important;
+  }
+
+  .nav-links a {
+    padding: 15px;
+    border-bottom: 1px solid #f9f9f9;
+    width: 100%;
+  }
+}
+
+
+/* HERO */
+.hero {
+  position: relative;
+  height: calc(100vh - 100px); /* Ocupa a altura da tela menos o header */
+  min-height: 600px; /* Garante altura mínima */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2; /* Texto fica acima da imagem */
+  text-align: left;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.subtitle {
+  display: block;
+  text-transform: uppercase;
+  color: var(--gold-light); /* Dourado mais claro para contraste */
+  letter-spacing: 3px;
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 15px;
+}
+
+.hero-text {
+  max-width: 650px; /* Limita o texto para não ficar muito largo na tela */
+}
+
+.hero-text h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 56px;
+  line-height: 1.1;
+  color: var(--white); /* Texto branco */
+  margin-bottom: 25px;
+}
+
+.hero-text p {
+  font-size: 18px;
+  color: #f0f0f0; /* Branco levemente cinza */
+  margin-bottom: 35px;
+}
+
+.hero-btns {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.btn-primary {
+  background: var(--blue-secondary);
+  color: var(--white);
+  border: none;
+  padding: 18px 40px;
+  border-radius: 4px; /* Botões mais quadrados passam seriedade/luxo */
+  cursor: pointer;
+  font-weight: 600;
+  transition: var(--transition);
+}
+
+.btn-primary:hover {
+  background: var(--gold);
+  transform: translateY(-2px);
+}
+
+.btn-text {
+    background: none;
+    border: none;
+    font-weight: 600;
+    color: var(--blue-primary);
+    cursor: pointer;
+}
+
+.btn-text {
+  color: var(--white); /* Ajusta cor do botão de texto */
+}
+
+/* Configuração da Imagem como Background Full Screen */
+.hero-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.img-wrapper {
+  width: 100%;
+  height: 100%;
+}
+
+.img-wrapper::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.1); /* Camada escura para leitura do texto */
+    z-index: 2;
+}
+
+.hero-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Faz a imagem preencher tudo sem distorcer */
+}
+
+/* DESTAQUES */
+.destaques {
+  padding: 100px 0;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.section-header h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 40px;
+  color: var(--blue-primary);
+}
+
+.section-header p {
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 14px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 40px;
+}
+
+
+.card {
+  background: var(--white);
+  border-radius: 0; /* Design minimalista */
+  overflow: hidden;
+  transition: var(--transition);
+  border: 1px solid transparent;
+}
+
+.card:hover {
+  transform: translateY(-10px);
+  border-color: #eee;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+}
+
+.card_img {
+  background: #fdfdfd;
+  height: 320px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card_img img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transition: var(--transition);
+}
+
+.card:hover .card_img img {
+    transform: scale(1.05);
+}
+
+.card-info {
+    padding: 25px;
+    text-align: center;
+}
+
+.card-info h4 {
+    font-size: 12px;
+    text-transform: uppercase;
+    color: var(--gray-light);
+    letter-spacing: 2px;
+    margin-bottom: 5px;
+    font-family: 'Poppins';
+    font-weight: 300;
+}
+
+.card-info h3 {
+  font-family: 'Poppins', serif;
+  font-size: 20px;
+  margin-bottom: 10px;
+  color: var(--blue-primary);
+}
+
+.price {
+  display: block;
+  color: var(--gold);
+  font-weight: 600;
+  font-size: 18px;
+  margin-bottom: 15px;
+}
+
+.btn-add {
+    background: none;
+    border: 1px solid var(--blue-primary);
+    padding: 8px 20px;
+    cursor: pointer;
+    font-size: 12px;
+    text-transform: uppercase;
+    transition: var(--transition);
+}
+
+.btn-add:hover {
+    background: var(--blue-primary);
+    color: white;
+}
+
+/* FOOTER */
+.footer {
+  background: var(--blue-primary);
+  color: rgba(255,255,255,0.6);
+  padding: 60px 0;
+  text-align: center;
+}
+
+.footer-logo {
+    font-family: 'Playfair Display', serif;
+    color: var(--white);
+    font-size: 28px;
+    letter-spacing: 6px;
+    margin-bottom: 20px;
+}
+
+/* --- AJUSTES DE LAYOUT MOBILE --- */
+@media (max-width: 900px) {
+  /* Corrige o problema de "meia tela" no Hero, deixando um bloco embaixo do outro */
+  .hero-content {
+    width: 100%;
+    padding: 0 20px;
+  }
+
+  .hero-text h1 {
+    font-size: 42px; /* Ajusta tamanho da fonte para celular */
+  }
+
+  /* Remove o deslocamento da borda do Hero que causa a barra de rolagem horizontal */
+  .img-wrapper::after {
+    /* Não é mais necessário resetar pois o estilo principal mudou */
+  }
+
+  /* Previne que os itens do cabeçalho (logo, busca, menu) estourem a largura */
+  .nav-wrapper { gap: 10px; }
+  .search-bar { min-width: 0; }
+
+  /* Grid de 2 colunas para produtos */
+  .grid {
+    grid-template-columns: 1fr 1fr; /* Força 2 colunas iguais */
+    gap: 15px; /* Reduz o espaço entre eles */
+  }
+
+  /* Ajusta o tamanho dos cards para ficarem proporcionais nas colunas menores */
+  .card_img {
+    height: 180px; /* Reduz a altura da imagem (era 320px) */
+    padding: 10px;
+  }
+
+  .card-info {
+    padding: 15px 10px; /* Reduz o espaçamento interno */
+  }
+}
