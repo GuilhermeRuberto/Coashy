@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { marca: "arab", nome: "junior", preco: "239,90", imagem: "https://fimgs.net/mdimg/perfume-thumbs/375x500.13016.avif" },
         { marca: "Dior", nome: "Homme Intense", preco: "199,90", imagem: "https://fimgs.net/mdimg/perfume-thumbs/375x500.15336.avif" },
         { marca: "mac", nome: "Nocturne", preco: "259,90", imagem: "https://fimgs.net/mdimg/perfume-thumbs/375x500.13016.avif" },
-        { marca: "Coashy", nome: "Aurous Gold", preco: "239,90", imagem: "https://fimgs.net/mdimg/perfume-thumbs/375x500.13016.avif" },
+        { marca: "Carab", nome: "Aurous Gold", preco: "239,90", imagem: "https://fimgs.net/mdimg/perfume-thumbs/375x500.13016.avif" },
         { marca: "arab", nome: "junior", preco: "239,90", imagem: "https://fimgs.net/mdimg/perfume-thumbs/375x500.13016.avif" },
         { marca: "Dior", nome: "Homme Intense", preco: "199,90", imagem: "https://fimgs.net/mdimg/perfume-thumbs/375x500.15336.avif" },
         { marca: "mac", nome: "Nocturne", preco: "259,90", imagem: "https://fimgs.net/mdimg/perfume-thumbs/375x500.13016.avif" }
