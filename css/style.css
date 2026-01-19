@@ -138,7 +138,7 @@ body {
 }
 
 .logo img {
-  height: 100px; /* Sugestão: 20px é muito pequeno, aumentei para 40px */
+  height: 80px; /* Sugestão: 20px é muito pequeno, aumentei para 40px */
   width: auto;
   display: block;
   object-fit: contain;
