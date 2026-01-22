@@ -16,7 +16,9 @@
 <body>
 
   <header class="header">
-  <div class="container nav-wrapper">
+    <div class="container">
+    <div class="nav-wrapper">
+
     <a href="" class="logo">
       <img src="/assets/logo_png.png" alt="Coashy">
     </a>
@@ -28,7 +30,7 @@
 
     <div class="nav-actions">
       <div class="menu-container">
-        <button class="menu-toggle">Menu ▾</button>
+        <button class="menu-toggle" onclick="toggleMenu()">☰</button>
         <nav id="main-nav" class="nav-links">
           <a href="#">Perfumes</a>
           <a href="#">Sobre</a>
@@ -41,7 +43,8 @@
         <span class="badge">0</span>
       </button>
     </div>
-  </div>
+    </div>
+    </div>
 </header>
   <section class="hero">
     <div class="hero-image">
@@ -70,13 +73,14 @@
         <p>Os mais desejados da temporada</p>
       </div>
 
-      <div class="grid" id="perfume-grid">
-        
-      </div>
+      <div id="pagination-top" class="pagination" style="margin-bottom: 30px;"></div>
+      
+      <div class="grid" id="perfume-grid"></div>
 
-      <div class="center">
-        <button class="btn-secondary">Ver Coleção Completa</button>
-      </div>
+      <div id="pagination-bottom" class="pagination"></div>
+      
+
+      
     </div>
   </section>
 
