@@ -154,7 +154,7 @@ function iniciarHome() {
         // 4. Scroll suave para o topo da seção
         const section = document.querySelector('.destaques');
         if (section) {
-            window.scrollTo({ top: section.offsetTop + 100, behavior: 'smooth' });
+            window.scrollTo({ top: section.offsetTop + 80, behavior: 'smooth' });
         }
     }, 300); 
 };
