@@ -1,10 +1,13 @@
+.menu-toggle, .btn-menu-mobile {
+    display: none; /* Escondido por padrão no PC */
+}
 /* ==========================================================================
    1. VARIÁVEIS E RESET
    ========================================================================== */
 :root {
   --blue-primary: #0F172A;
   --blue-secondary: #334155;
-  --off-white: #F8F9FA;
+  --off-white: #f9f7f5;
   --white: #FFFFFF;
   --gray-text: #334155;
   --gray-light: #94A3B8;
@@ -38,20 +41,85 @@ html, body {
    2. HEADER & NAVEGAÇÃO (REESTRUTURADO)
    ========================================================================== */
 .header {
-  height: 100px;
-  background: var(--white);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  border-bottom: 1px solid #eee;
-  display: flex;
-  align-items: center;
+    height: 100px;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    background: transparent;
+    border: none; 
+    display: flex;
+    align-items: center;
+    transition: all 0.4s ease;
 }
+
+/* Quando scrollar, o fundo branco aparece e o header encolhe */
+.header.scrolled {
+    height: 75px;
+    background: rgba(255, 255, 255, 0.98); 
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+/* Garante que os links apareçam bem sobre o banner escuro */
+.header:not(.scrolled) .nav-links a, 
+.header:not(.scrolled) .cart-btn,
+.header:not(.scrolled) .logo img {
+    filter: brightness(0) invert(1); /* Deixa tudo branco se o banner for escuro */
+}
+
+/* Quando scrollar, tudo volta para as cores originais (azul/dourado) */
+.header.scrolled .nav-links a, 
+.header.scrolled .cart-btn,
+.header.scrolled .logo img {
+    filter: none;
+}
+
+
+/* Regra para esconder o header ao descer */
+.header-hidden {
+    transform: translateY(-100%); /* Joga o header para fora da tela */
+}
+
+/* Ajuste dos textos para serem brancos no banner e escuros no scroll */
+.header .nav-links a, .header .cart-btn {
+    color: var(--white); /* Cor inicial branca para contrastar com o banner */
+    transition: color 0.3s ease;
+}
+
+.header.scrolled .nav-links a, .header.scrolled .cart-btn {
+    color: var(--blue-primary); /* Volta para a cor original no fundo branco */
+}
+
+/* Cor base para o estado transparente (Branco) */
+.header:not(.scrolled) .nav-links a {
+    color: white;
+}
+
+
+
+/* Garante que o dourado funcione em ambos os estados */
+.header .nav-links a:hover {
+    color: var(--gold) !important; /* O dourado sempre terá prioridade */
+    filter: none !important;      /* Remove o filtro branco no hover */
+}
+
+/* Efeito da linha dourada (ajuste para aparecer no banner) */
+.header:not(.scrolled) .nav-links a::after {
+    background-color: var(--gold);
+}
+
 
 .header .container {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    height: 100%;
+    width: 100%;
+    max-width: 1200px; /* Ou a largura máxima do seu site */
+    margin: 0 auto;
+    padding: 0 20px;
 }
 
 .nav-wrapper {
@@ -64,20 +132,31 @@ html, body {
 
 
 
-/* LOGO: Maior e com mais presença */
+/* Container da Logo */
 .logo {
   display: flex;
   align-items: center;
   flex-shrink: 0;
   margin-right: 20px;
+  cursor: pointer;
+  /* Remova o overflow: hidden se ele estiver cortando o brilho */
 }
-
 
 .logo img {
-  height: 70px; /* Ajuste ideal para os 100px do header */
+  height: 70px;
   width: auto;
-  transition: var(--transition);
+  /* Transição completa para todas as mudanças de filtro e cor */
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+/* O HOVER: Usamos filtros que funcionam em pixels pretos e brancos */
+.logo:hover img {
+  /* 1. Primeiro transformamos em algo claro (invert) 
+     2. Depois damos o tom dourado (sepia + saturate) */
+  filter: invert(0.5) sepia(1) saturate(3) hue-rotate(10deg) brightness(1.1) !important;
+  transform: scale(1.01); /* Um leve aumento para confirmar que o hover pegou */
+}
+
 
 /* BUSCA: Centralizada e com bordas mais suaves */
 .search-bar {
@@ -90,6 +169,8 @@ html, body {
   border-radius: 50px; /* Estilo pílula, mais moderno */
   padding: 5px 20px;
   transition: var(--transition);
+  max-width: 500px; /* Define um limite para a busca no desktop */
+  margin: 0 40px;
 }
 
 .search-bar:focus-within {
@@ -198,12 +279,14 @@ html, body {
    ========================================================================== */
 .hero {
   position: relative;
-  height: calc(100vh - 100px);
+  height: 100vh; /* Banner total */
   min-height: 600px;
   display: flex;
   align-items: center;
   overflow: hidden;
+  /* Remova o padding-top: 100px daqui se quiser o efeito de cápsula vazada */
 }
+
 
 .hero-image {
   position: absolute;
@@ -387,20 +470,245 @@ html, body {
 }
 
 /* ==========================================================================
+   5. CARRINHO LATERAL (DRAWER)
+   ========================================================================== */
+/* Container que segura a lista de itens */
+#cart-items {
+    flex: 1;
+    overflow-y: auto; /* Permite scroll se tiver muitos perfumes */
+    padding: 10px;
+}
+
+.side-cart {
+    position: fixed;
+    right: -100%; /* Escondido */
+    top: 0;
+    width: 400px;
+    max-width: 100%; /* Garante que no celular não passe da tela */
+    height: 100vh; /* Altura total da tela */
+    background: white;
+    box-shadow: -10px 0 30px rgba(0,0,0,0.1);
+    z-index: 3000;
+    display: flex;
+    flex-direction: column; /* Alinha os blocos um embaixo do outro */
+    transition: right 0.4s ease;
+}
+
+/* Área dos produtos com scroll interno */
+.cart-items-container {
+    flex: 1; /* Ocupa todo o espaço central */
+    overflow-y: auto; /* Se tiver muito perfume, cria scroll aqui dentro */
+    padding: 20px;
+}
+
+.cart-header {
+    padding: 30px 25px 20px 25px; /* Aumenta o espaço superior e lateral */
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cart-header h3 {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.cart-footer {
+    padding: 25px;
+    background: #ffffff;
+    border-top: 1px solid #f1f5f9;
+}
+
+.cart-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.cart-total span:first-child {
+    color: #64748b;
+    font-weight: 500;
+}
+
+#cart-total-val {
+    font-size: 20px;
+    font-weight: 800;
+    color: #1a1a1a;
+}
+
+
+/* O item individual (Onde estava espremido) */
+.cart-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    margin-bottom: 10px;
+    background: #fff;
+    border-bottom: 1px solid #f8f8f8;
+}
+
+/* Ajuste da Imagem */
+.cart-item img {
+    width: 80px; /* Aumentei um pouco para dar destaque */
+    height: 80px;
+    object-fit: contain; /* Garante que o perfume apareça inteiro */
+    background: #f9f9f9;
+    border-radius: 4px;
+    flex-shrink: 0; /* Não deixa a imagem diminuir */
+}
+
+/* Coluna do Meio (Nome e Qtd) */
+.cart-item-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.cart-item-info h4 {
+    font-size: 14px;
+    margin: 0;
+    color: #1a1a1a;
+    line-height: 1.2;
+}
+
+/* Coluna da Direita (Preço) */
+.cart-item-price {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: space-between;
+    height: 80px; /* Alinha com a altura da imagem */
+}
+
+.cart-item-price p {
+    font-weight: 700;
+    color: var(--gold);
+    margin: 0;
+}
+
+.side-cart.active {
+    right: 0 !important;
+}
+
+
+/* Se o side-cart tiver a classe active, o elemento irmão cart-overlay também ativa */
+#side-cart.active ~ #cart-overlay {
+    display: block;
+    opacity: 1;
+}
+
+.cart-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4); /* Escurece o fundo suavemente */
+    backdrop-filter: blur(2px); /* Dá um efeito de desfoque elegante */
+    z-index: 2500; /* Abaixo do carrinho (3000), mas acima do site */
+    display: none; /* Começa escondido */
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* Quando o carrinho estiver ativo, mostramos o overlay */
+.side-cart.active + .cart-overlay, 
+.cart-overlay.active {
+    display: block;
+    opacity: 1;
+}
+
+.btn-checkout {
+    width: 100%;
+    padding: 16px;
+    background: #1a1a1a; /* Preto elegante */
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1px; /* Espaçamento entre letras de luxo */
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.btn-checkout:hover {
+    background: #d4af37; /* Muda para dourado no hover */
+    transform: translateY(-2px); /* Sobe um pouquinho */
+    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.3); /* Brilho dourado */
+}
+
+.btn-checkout:active {
+    transform: translateY(0); /* Volta ao clicar */
+}
+
+.close-cart {
+    background: #f8fafc; /* Fundo suave */
+    border: none;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%; /* Redondinho */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    line-height: 1;
+}
+
+.close-cart:hover {
+    background: #ef4444; /* Fica vermelho ao passar o mouse */
+    color: white;
+    transform: rotate(90deg); /* Efeito de giro sutil */
+}
+
+/* Responsividade Mobile */
+@media (max-width: 900px) {
+    .product-grid-detail { grid-template-columns: 1fr; gap: 40px; }
+    .product-info h1 { font-size: 38px; }
+    .side-cart { width: 100%; right: -100%; }
+}
+
+/* ==========================================================================
    6. RESPONSIVIDADE (MOBILE & TABLET)
    ========================================================================== */
 
-/* Tablets (3 colunas) */
-@media (max-width: 1100px) {
-  #perfume-grid { grid-template-columns: repeat(3, 1fr); }
-  .hero-text h1 { font-size: 45px; }
-}
-
-/* --- AJUSTES PARA CELULAR (Telas até 900px) --- */
+/* Unificando a Grid para não vazar */
 @media (max-width: 900px) {
-  .header .container {
-    padding: 10px 15px;
+  /* Use o nome que está no seu ID ou Classe da vitrine */
+  #perfume-grid, .perfumes-grid, .products-grid { 
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important; /* 2 colunas */
+    gap: 10px !important;
+    padding: 10px !important;
   }
+  .menu-toggle, .btn-menu-mobile {
+        display: block; /* Aparece apenas em celulares e tablets */
+    }
+
+  /* Garante que o card ocupe apenas o espaço da coluna */
+  .product-card {
+    width: 100% !important;
+    margin: 0 !important;
+    box-sizing: border-box;
+  }
+  
+  .product-card img {
+    max-width: 100%;
+    height: auto;
+  }
+}
 
  /* Ajuste da barra de pesquisa para ser compacta ao lado da logo */
   .search-bar {
@@ -466,47 +774,40 @@ html, body {
     display: block; /* Aparece no Mobile */
   }
 
-  /* 2. Hero/Banner: Centraliza e ajusta altura */
   .hero {
-    height: 60vh; /* Ocupa 60% da altura da tela - ideal para mobile */
-    min-height: 400px;
-    display: flex;
-    align-items: center; /* Centraliza o conteúdo verticalmente */
-    justify-content: center;
-    padding: 20px;
-    margin-top: 0; /* Garante que comece logo após o header */
-  }
+    position: relative;
+    overflow: hidden;
+    background-color: #000; /* Fundo preto em vez de cinza */
+}
 
-  .hero-image {
+.hero-image {
     position: absolute;
-    inset: 0;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
-  }
+    z-index: 1;
+}
 
-  .hero-image img {
+.hero-image img {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Preenche o espaço sem distorcer */
-    object-position: center; /* Tenta manter o centro da foto visível */
-  }
+    object-fit: cover;
+    /* Adicione um filtro se quiser que a imagem fique mais viva */
+    filter: brightness(0.8); 
+}
+
+/* Garante que o conteúdo fique na frente da imagem */
+.hero-content {
+    position: relative;
+    z-index: 2;
+}
 
   /* Camada escura para o texto não "sumir" na imagem */
   .img-wrapper::after {
     background: rgba(0, 0, 0, 0.4); /* Escurece um pouco mais no mobile */
   }
  
-  .hero-content {
-    text-align: center;
-    padding: 0 20px;
-  }
-
-  /* Ajuste do Texto */
-  .hero-content {
-    width: 100%;
-    text-align: center;
-    z-index: 5;
-  }
 
   .hero-text h1 {
     font-size: 26px; /* Fonte menor para caber na tela do celular */

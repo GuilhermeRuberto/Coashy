@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -38,9 +38,9 @@
         </nav>
       </div>
 
-      <button class="cart-btn">
+      <button class="cart-btn" onclick="toggleCart()">
         <span>👜</span>
-        <span class="badge">0</span>
+        <span class="badge" id="cart-count">0</span>
       </button>
     </div>
     </div>
@@ -91,6 +91,33 @@
     </div>
   </footer>
 
+  <div id="cart-overlay" class="cart-overlay" onclick="toggleCart()"></div>
+
+<div id="side-cart" class="side-cart">
+    <div class="cart-header">
+        <h3>Seu Carrinho</h3>
+        <button onclick="toggleCart()" class="close-cart">✕</button>
+    </div>
+
+    <div id="cart-items" class="cart-items-container"></div>
+
+    <div class="cart-footer">
+        <div class="cart-total">
+            <span>Total:</span>
+            <span id="cart-total-val">R$ 0,00</span>
+        </div>
+        <button class="btn-checkout" onclick="finalizarPedido()">FINALIZAR COMPRA</button>
+    </div>
+</div>
+
+
   <script src="js/main.js"></script>
+    <script>
+        // Força a atualização do contador e renderização ao abrir a home
+        document.addEventListener('DOMContentLoaded', () => {
+            atualizarContadorCarrinho();
+            renderizarCarrinho();
+        });
+    </script>
 </body>
 </html>

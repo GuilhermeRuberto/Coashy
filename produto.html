@@ -1,52 +1,71 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Produto | Coashy Perfumaria</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/product.css">
+    <meta charset="UTF-8">
+    <title>Produto | Coashy Perfumaria</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/product.css">
 </head>
-<body>
+<body class="product-page"> <header class="header">
+        <div class="container">
+            <a href="index.html" class="logo">
+                <img src="/assets/logo_png.png" alt="Coashy">
+            </a>
 
-  <header class="header">
-    <div class="container nav-wrapper">
-      <a href="index.html" class="logo">
-        <img src="/assets/logo_png.png" alt="Coashy">
-      </a>
+            <div class="search-bar">
+                <input type="text" placeholder="Pesquisar fragrância...">
+                <button>🔍</button>
+            </div>
 
-      <div class="nav-actions">
-        <nav class="nav-links">
-          <a href="index.html">Início</a>
-          <a href="index.html#perfumes">Perfumes</a>
-          <a href="#">Sobre</a>
-        </nav>
-        <button class="cart-btn">
-          <span>👜</span>
-          <span class="badge">0</span>
-        </button>
-      </div>
-    </div>
-  </header>
+            <div class="nav-actions">
+                <nav class="nav-links">
+                    <a href="index.html#perfumes">Perfumes</a>
+                    <a href="#">Sobre</a>
+                </nav>
+                <button class="cart-btn" onclick="toggleCart()">
+                    <span>👜</span>
+                    <span class="badge" id="cart-count">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
 
-  <main class="container product-page-container">
-    <div id="product-details">
-        <p>Carregando detalhes do perfume...</p>
-    </div>
-</main>
+        <main class="product-page-container" id="product-details">
+        <p style="text-align:center; padding: 100px;">Carregando fragrância...</p>
+    </main> <div id="cart-overlay" class="cart-overlay" onclick="toggleCart()"></div>
+    
+    <div id="side-cart" class="side-cart">
+        <div class="cart-header">
+            <h3>Seu Carrinho</h3>
+            <button onclick="toggleCart()" class="close-cart">✕</button>
+        </div>
 
-  <footer class="footer">
-    <div class="container">
-        <div class="footer-logo">COASHY</div>
-        <p>© 2026 Coashy — Essência e Elegância em cada detalhe.</p>
-    </div>
-  </footer>
+        <div id="cart-items" class="cart-items-container"></div>
 
-  <script src="js/main.js"></script>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span>Total:</span>
+                <span id="cart-total-val">R$ 0,00</span>
+            </div>
+            <button class="btn-checkout" onclick="finalizarPedido()">FINALIZAR COMPRA</button>
+        </div>
+    </div> <footer class="footer">
+        <div class="container">
+            <div class="footer-logo">COASHY</div>
+            <p>© 2026 Coashy — Perfumaria de Luxo.</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/product.js"></script>
 </body>
 </html>
+
+
+
