@@ -13,28 +13,37 @@
     <link rel="stylesheet" href="css/product.css">
 </head>
 <body class="product-page"> <header class="header">
-        <div class="container">
-            <a href="index.html" class="logo">
-                <img src="/assets/logo_png.png" alt="Coashy">
-            </a>
+  <div class="container">
+    <div class="nav-wrapper">
+      <a href="index.html" class="logo">
+        <img src="/assets/logo_png.png" alt="Coashy">
+      </a>
 
-            <div class="search-bar">
-                <input type="text" placeholder="Pesquisar fragrância...">
-                <button>🔍</button>
-            </div>
-
-            <div class="nav-actions">
-                <nav class="nav-links">
-                    <a href="index.html#perfumes">Perfumes</a>
-                    <a href="#">Sobre</a>
-                </nav>
-                <button class="cart-btn" onclick="toggleCart()">
-                    <span>👜</span>
-                    <span class="badge" id="cart-count">0</span>
-                </button>
-            </div>
+      <div class="search-bar">
+    <div class="search-wrapper">
+            <i class="fas fa-search"></i>
+            <input type="text" id="main-search" placeholder="Buscar fragrância..." autocomplete="off">
+            <div id="search-dropdown" class="search-suggestions"></div>
         </div>
-    </header>
+    </div>
+
+      <div class="nav-actions">
+        <nav id="main-nav" class="nav-links">
+          <a href="index.html">Início</a>
+          <a href="#">Perfumes</a>
+          <a href="#">Sobre</a>
+        </nav>
+
+        <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+        
+        <button class="cart-btn" onclick="toggleCart()">
+          <span>👜</span>
+          <span class="badge" id="cart-count">0</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
 
         <main class="product-page-container" id="product-details">
         <p style="text-align:center; padding: 100px;">Carregando fragrância...</p>

@@ -8,109 +8,52 @@ html, body {
     background-color: var(--off-white); /* Mantendo o off-white que você gostou */
 }
 
-/* ==========================================================================
-   2. HEADER E NAVEGAÇÃO (ESTÁVEL E ALINHADO)
-   ========================================================================== */
-/* HEADER: Fundo branco e alinhamento fixo */
-.product-page .header {
-    background: #ffffff !important;
+/* ==========================================================
+   AJUSTES TEMA CLARO (PAGINA DE PRODUTO)
+   ========================================================== */
+
+/* Remove transparência e define fundo branco */
+.header {
+    background-color: #ffffff !important;
     position: sticky !important;
     top: 0;
-    height: 100px !important; 
-    border-bottom: 1px solid #eee !important;
-    display: flex !important;
-    align-items: center !important;
-    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05) !important;
 }
 
-/* O Segredo: Força o container a distribuir o espaço em 3 partes */
-.product-page .header .container {
-    display: flex !important;
-    justify-content: space-between !important; 
-    align-items: center !important;
-    width: 95% !important;
-    max-width: 1400px !important;
-    margin: 0 auto !important;
+.header .logo img {
+    filter: none !important;
+    -webkit-filter: none !important;
+    opacity: 1 !important;
 }
 
-/* BARRA DE BUSCA: Agora ela terá espaço para aparecer */
-.product-page .search-bar {
-    display: flex !important; 
-    background: #f5f5f5 !important;
-    border: 1px solid #ddd !important;
-    flex: 0 1 500px !important; /* Define um tamanho base de 500px */
-    margin: 0 40px !important;
-    border-radius: 50px;
-    padding: 5px 20px;
-}
-
-.product-page .search-bar input {
-    border: none;
-    background: transparent;
-    outline: none;
-    width: 100%;
-    padding: 8px;
-}
-
-/* LOGO: Tamanho consistente com a Home */
-.product-page .logo img {
-    height: 70px !important;
-    width: auto !important;
+/* Forçar cores escuras no header da página de produto */
+.header .nav-links a, 
+.header .cart-btn, 
+.header .menu-toggle,
+.header .cart-btn span,
+.header .badge,
+.header .search-bar button{
+    color: #334155 !important; /* Cor escura (mesma do seu inspetor) */
+    -webkit-text-fill-color: #334155 !important;
+    opacity: 1 !important;
     filter: none !important;
 }
 
-/* ANIMAÇÃO DA LOGO (Efeito de brilho solicitado) */
-.product-page .logo:hover img {
-    filter: invert(0.2) sepia(1) saturate(3) hue-rotate(10deg) brightness(1.1) !important;
-    transform: scale(1.02);
+/* Garante que o ícone da busca e outros ícones sigam a cor */
+.header .search-bar button,
+.header .menu-toggle i {
+    color: #334155 !important;
 }
 
-/* --- LINKS E AÇÕES --- */
-.product-page .nav-actions {
-    display: flex !important;
-    align-items: center !important;
-    gap: 35px !important;
-}
-
-.product-page .nav-links a, 
-.product-page .cart-btn {
-    color: var(--blue-primary) !important;
-    filter: none !important;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 12px;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-}
-
-.product-page .nav-links a:hover {
+/* Seletor extra para os links caso eles tenham hover */
+.header .nav-links a:hover {
     color: var(--gold) !important;
 }
-
-/* ==========================================================================
-   3. ÁREA DO PRODUTO (GRID E INFO)
-   ========================================================================== */
-/* ==========================================================================
-   1. ESTRUTURA E HEADER (RESET)
-   ========================================================================== */
-.product-page {
-    background: #fff;
-}
-
-.product-page .header {
-    background: #ffffff !important;
-    position: sticky !important;
-    top: 0;
-    height: 100px !important;
-    border-bottom: 1px solid #f0f0f0 !important;
-    z-index: 1000;
-}
-
 /* ==========================================================================
    2. GRID DE PRODUTO (LADO A LADO)
    ========================================================================== */
 .product-page-container {
-    max-width: 1300px;
+    max-width: 1400px;
     margin: 40px auto;
     padding: 0 20px;
 }
@@ -338,6 +281,21 @@ html, body {
     font-weight: 500;
 }
 
+/* Quando o botão está ativo e é feminino */
+.size-option.active.gender-fem {
+    background-color: #be185d !important;
+    border-color: #be185d !important;
+    color: white !important;
+}
+
+/* Quando o botão está ativo e é masculino */
+.size-option.active.gender-masc {
+    background-color: #1d4ed8 !important;
+    border-color: #1d4ed8 !important;
+    color: white !important;
+}
+
+
 /* ==========================================================================
    4. DETALHES EXTRAS (DESCRIÇÃO)
    ========================================================================== */
@@ -389,5 +347,94 @@ html, body {
     padding: 25px;
     border-radius: 8px;
     border: 1px solid #f1f1f1;
+}
+
+
+
+/* ==========================================================================
+   5. Responsividade
+   ========================================================================== */
+
+@media (max-width: 900px) {
+    /* 1. Ajuste do Grid de Detalhes */
+    .product-grid-detail {
+        display: flex !important;
+        flex-direction: column !important; /* Foto em cima, info embaixo */
+        gap: 20px;
+        padding: 10px;
+    }
+
+    /* 2. Imagem do Produto */
+    .product-img {
+        width: 100% !important;
+        max-height: 400px;
+        display: flex;
+        justify-content: center;
+        background: #fff;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .product-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain; /* Garante que o perfume apareça inteiro sem cortes */
+        padding: 20px;
+    }
+
+    /* 3. Informações e Textos */
+    .product-info {
+        padding: 15px !important;
+        text-align: left; /* Alinhamento à esquerda é melhor para leitura de specs */
+    }
+
+    .product-info h1 {
+        font-size: 24px !important;
+        margin: 10px 0;
+    }
+
+    /* 4. Seleção de ML (Variações) */
+    .size-selector {
+        display: grid !important; /* Transforma em grid para os botões ficarem iguais */
+        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+        gap: 10px;
+        width: 100%;
+    }
+
+    .size-option {
+        width: 100% !important;
+        padding: 12px !important; /* Botão maior para o polegar */
+        font-size: 14px;
+        text-align: center;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+    }
+
+    /* 5. Barra de Fixação */
+    .fixation-container {
+        background: #f8fafc;
+        padding: 15px;
+        border-radius: 12px;
+        margin: 20px 0;
+    }
+
+    /* 6. Botão de Adicionar ao Carrinho Fixo (Opcional, mas recomendado) */
+    .btn-add-cart {
+        width: 100% !important;
+        padding: 18px !important;
+        font-size: 16px !important;
+        font-weight: bold;
+        border-radius: 12px;
+        margin-top: 20px;
+        /* Se quiser que ele fique grudado no final da tela: */
+        /* position: sticky; bottom: 10px; z-index: 100; */
+    }
+
+    /* Ajuste da Specs Row (ML + Badge de Gênero) */
+    .specs-row {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 15px;
+    }
 }
 

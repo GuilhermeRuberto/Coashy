@@ -16,64 +16,98 @@
 <body>
 
   <header class="header">
-    <div class="container">
+  <div class="container">
     <div class="nav-wrapper">
 
-    <a href="" class="logo">
-      <img src="/assets/logo_png.png" alt="Coashy">
-    </a>
+      <a href="index.html" class="logo">
+        <img src="/assets/logo_png.png" alt="Coashy">
+      </a>
 
-    <div class="search-bar">
-      <input type="text" placeholder="Pesquisar fragrância...">
-      <button>🔍</button>
-    </div>
+      <div class="search-bar">
+        <div class="search-wrapper">
+          <i class="fas fa-search"></i>
+            <input type="text" id="main-search" placeholder="O que você está procurando?" autocomplete="off">
+              <div id="search-dropdown" class="search-suggestions"></div>
+            </div>
+      </div>
 
-    <div class="nav-actions">
-      <div class="menu-container">
-        <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+      <div class="nav-actions">
         <nav id="main-nav" class="nav-links">
-          <a href="#">Perfumes</a>
+          <a href="#produtos">Perfumes</a>
           <a href="#">Sobre</a>
           <a href="#">Contato</a>
         </nav>
+
+        <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+
+        <button class="cart-btn" onclick="toggleCart()">
+          <span>👜</span>
+          <span class="badge" id="cart-count">0</span>
+        </button>
       </div>
 
-      <button class="cart-btn" onclick="toggleCart()">
-        <span>👜</span>
-        <span class="badge" id="cart-count">0</span>
-      </button>
     </div>
-    </div>
-    </div>
+  </div>
 </header>
   <section class="hero">
     <div class="hero-image">
-      <div class="img-wrapper">
-          <img src="assets/ng.png" alt="Perfume Coashy Destaque">
-      </div>
+        <picture>
+            <source media="(max-width: 900px)" srcset="assets/wall-paper-mobile.jpg">
+            <img src="assets/ng.png" alt="Coleção 2026">
+        </picture>
     </div>
 
-    <div class="container hero-content">
-      <div class="hero-text">
+    <div class="hero-content">
         <span class="subtitle">Coleção Exclusiva 2026</span>
         <h1>Descubra o aroma da sofisticação</h1>
-        <p>Essências raras capturadas em frascos de design único. Sinta a elegância em cada nota olfativa.</p>
         <div class="hero-btns">
-            <button class="btn-primary">Ver Perfumes</button>
-            <button class="btn-text">Conheça nossa história →</button>
+            <a href="#produtos" class="btn-primary">Ver Perfumes</a>
         </div>
-      </div>
     </div>
-  </section>
+</section>
 
   <section class="destaques">
     <div class="container">
-      <div class="section-header">
+      <div id="produtos" class="section-header">
         <h2>Nossas Fragrâncias</h2>
         <p>Os mais desejados da temporada</p>
       </div>
 
       <div id="pagination-top" class="pagination" style="margin-bottom: 30px;"></div>
+          <section class="filters-container">
+                  <div class="search-wrapper">
+                      <i class="fas fa-search"></i>
+                      <input type="text" id="secondary-search" placeholder="O que você está procurando?">
+                  </div>
+
+                  <div class="selects-grid">
+                      <div class="select-box">
+                        <select id="filter-marca">
+                          <option value="">Marca</option>
+                        </select>
+                       </div>
+                    <div class="select-box">
+                      <select id="filter-genero">
+                        <option value="">Gênero</option>
+                        <option value="MASC">Masculino</option>
+                        <option value="FEM">Feminino</option>
+                        <option value="UNISSEX">Unissex</option>
+                      </select>
+                    </div>
+                    <div class="select-box">
+                      <select id="filter-tipo">
+                        <option value="">Concentração</option>
+                        <option value="EDP">Eau de Parfum</option>
+                        <option value="EDT">Eau de Toilette</option>
+                      </select>
+                    </div>
+                    <button id="btn-limpar" class="btn-limpar" onclick="limparTodosFiltros()">
+                        Limpar Filtros
+                      </button>
+                  </div>
+              
+    </div>
+</section>
       
       <div class="grid" id="perfume-grid"></div>
 

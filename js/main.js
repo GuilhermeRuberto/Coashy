@@ -1,5 +1,9 @@
-// 1. CONFIGURAÇÕES
-// Corrigi a URL (estava com dois links grudados)
+/**
+ * COASHY PERFUMARIA - Script Centralizado
+ * Funcionalidades: Filtros Dinâmicos, Carrinho, Integração Sheets e UI Reativa
+ */
+
+// 1. CONFIGURAÇÕES E ESTADO GLOBAL
 const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRZSzbt4ZdO5IcbVolHtuNdMu91pnid44OcgFjwmSOiyMlSjJDSI9hKjb4yeFRyY3FiVx90XPGfQr2X/pub?gid=1797905819&single=true&output=csv";
 const ITENS_POR_PAGINA = 20;
 
@@ -14,43 +18,33 @@ const CONFIG_FIXACAO = {
 let todosProdutos = [];
 let produtosFiltrados = [];
 let paginaAtual = 1;
+let carrinho = JSON.parse(localStorage.getItem('coashy_cart')) || [];
 
-// 2. BUSCA DE DADOS
+// 2. BUSCA DE DADOS (GOOGLE SHEETS)
 async function buscarDados() {
     try {
-        const urlComCacheBuster = SHEET_URL.split('?')[0] + '/pub?gid=1797905819&single=true&output=csv&t=' + new Date().getTime();
-        const response = await fetch(urlComCacheBuster);
+        const t = new Date().getTime();
+        const url = `${SHEET_URL.split('?')[0]}/pub?gid=1797905819&single=true&output=csv&t=${t}`;
+        const response = await fetch(url);
         const text = await response.text();
         
-        // Divide por linhas, mas remove o \r (carriage return) para não bugar no Windows
         const rows = text.split(/\r?\n/).filter(row => row.trim() !== "");
         const dataRows = rows.slice(1);
 
         return dataRows.map(row => {
-            // REGEX MÁGICA: Separa por vírgula, mas ignora vírgulas dentro de aspas
-            // Isso garante que "Dolce & Gabbana" não se separe
             const col = row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g) || [];
-            
-            // Limpa aspas extras e espaços das pontas
             const limpo = col.map(c => c.replace(/^"|"$/g, '').trim());
-
-            // Mapeamento baseado na estrutura real da sua planilha:
-            // A=0 (ID), B=1 (Marca), C=2 (Nome), D=3 (Preço), E=4 (ML), F=5 (Tipo), G=6 (Gênero), H=7 (Imagem)
             
             const precoSujo = limpo[3] || "0";
             const valorNumerico = parseFloat(precoSujo.replace(/[R$\s.]/g, '').replace(',', '.')) || 0;
-
-            // Busca a imagem: tentamos na coluna 7 (H), se não, procuramos qualquer link
-            let linkImagem = limpo[7] && limpo[7].startsWith('http') ? limpo[7] : limpo.find(c => c.startsWith('http'));
+            let linkImagem = limpo[7]?.startsWith('http') ? limpo[7] : limpo.find(c => c.startsWith('http'));
 
             return {
                 id: limpo[0],
-                marca: limpo[1] || "Marca", // Aqui agora virá "Calvin Klein" completo
+                marca: limpo[1] || "Marca",
                 nome: limpo[2] || "Perfume",
                 preco: valorNumerico,
-                precoExibicao: valorNumerico > 0 
-                    ? valorNumerico.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-                    : "Consulte",
+                precoExibicao: valorNumerico > 0 ? valorNumerico.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : "Consulte",
                 ml: limpo[4] || "", 
                 tipo: (limpo[5] || "EDT").toUpperCase(),
                 genero: limpo[6] || "Unissex",
@@ -64,39 +58,48 @@ async function buscarDados() {
     }
 }
 
-// 3. CONTROLADOR DA HOME
-// 3. CONTROLADOR DA HOME
-function iniciarHome() {
+// 3. LÓGICA DE RENDERIZAÇÃO DA VITRINE (HOME)
+function obterProdutosUnicos(lista) {
+    const nomesVistos = new Set();
+    return lista.filter(item => {
+        const chave = item.nome.toLowerCase().trim();
+        if (!nomesVistos.has(chave)) {
+            nomesVistos.add(chave);
+            return true;
+        }
+        return false;
+    });
+}
+
+function renderizarVitrine() {
     const grid = document.getElementById('perfume-grid');
     if (!grid) return;
 
-    // --- NOVA LÓGICA DE AGRUPAMENTO ---
-    // Filtra para mostrar apenas o primeiro perfume de cada nome
-    function obterProdutosUnicos(lista) {
-        const nomesVistos = new Set();
-        return lista.filter(item => {
-            const nomeMinusculo = item.nome.toLowerCase().trim();
-            if (!nomesVistos.has(nomeMinusculo)) {
-                nomesVistos.add(nomeMinusculo);
-                return true;
-            }
-            return false;
-        });
-    }
+    // Adiciona um efeito de "piscada" suave ao atualizar
+    grid.style.opacity = '0.5';
+    
+    // ... resto do seu código de renderização ...
 
-    function renderizar() {
-        // Aplicamos o agrupamento aqui
-        const produtosUnicos = obterProdutosUnicos(produtosFiltrados);
-        
-        const inicio = (paginaAtual - 1) * ITENS_POR_PAGINA;
-        const fim = inicio + ITENS_POR_PAGINA;
-        const itensExibidos = produtosUnicos.slice(inicio, fim);
+    // Devolve a opacidade após renderizar
+    setTimeout(() => {
+        grid.style.opacity = '1';
+    }, 50);
 
-        if (itensExibidos.length === 0) {
-            grid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; padding: 50px;">Nenhuma fragrância encontrada.</p>`;
-            return;
-        }
+    grid.style.maxWidth = "1200px";
+    grid.style.margin = "0 auto";
+    grid.style.display = "grid";
+    document.body.style.backgroundColor = "#eeecd3"; // Fundo da página escuro
+    grid.style.backgroundColor = "#eeecd3";        // Fundo do grid escuro
+    grid.style.padding = "40px 20px";              // Mais respiro vertical
 
+    const produtosUnicos = obterProdutosUnicos(produtosFiltrados);
+    const inicio = (paginaAtual - 1) * ITENS_POR_PAGINA;
+    const fim = inicio + ITENS_POR_PAGINA;
+    const itensExibidos = produtosUnicos.slice(inicio, fim);
+
+    if (itensExibidos.length === 0) {
+        grid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; padding: 50px;">Nenhuma fragrância encontrada.</p>`;
+    } else {
         grid.innerHTML = itensExibidos.map(item => `
             <div class="card" onclick="abrirProduto('${item.id}')">
                 <div class="card_img">
@@ -110,59 +113,314 @@ function iniciarHome() {
                 </div>
             </div>
         `).join('');
-        
-        // Atualiza a paginação baseada no novo total de produtos únicos
-        renderizarBotoes(produtosUnicos.length);
     }
-
-    function renderizarBotoes(totalItensUnicos) {
-        const totalPaginas = Math.ceil(totalItensUnicos / ITENS_POR_PAGINA);
-        const pagTop = document.getElementById('pagination-top');
-        const pagBot = document.getElementById('pagination-bottom');
-        
-        if (totalPaginas <= 1) {
-            if (pagTop) pagTop.innerHTML = "";
-            if (pagBot) pagBot.innerHTML = "";
-            return;
-        }
-
-        let html = `<button class="page-btn" ${paginaAtual === 1 ? 'disabled' : ''} onclick="mudarPagina(${paginaAtual - 1})"> < </button>`;
-        for (let i = 1; i <= totalPaginas; i++) {
-            html += `<button class="page-btn ${i === paginaAtual ? 'active' : ''}" onclick="mudarPagina(${i})">${i}</button>`;
-        }
-        html += `<button class="page-btn" ${paginaAtual === totalPaginas ? 'disabled' : ''} onclick="mudarPagina(${paginaAtual + 1})"> > </button>`;
-
-        if (pagTop) pagTop.innerHTML = html;
-        if (pagBot) pagBot.innerHTML = html;
-    }
-
-    // O restante do código (searchInput, mudarPagina, etc) continua igual...
-    const searchInput = document.querySelector('.search-bar input');
-    if (searchInput) {
-        searchInput.addEventListener('input', (e) => {
-            const termo = e.target.value.toLowerCase();
-            produtosFiltrados = todosProdutos.filter(p => 
-                p.nome.toLowerCase().includes(termo) || p.marca.toLowerCase().includes(termo)
-            );
-            paginaAtual = 1;
-            renderizar();
-        });
-    }
-
-    window.mudarPagina = (n) => {
-        paginaAtual = n;
-        renderizar();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
-
-    window.abrirProduto = (id) => {
-        window.location.href = `produto.html?id=${id}`;
-    };
-
-    renderizar();
+    renderizarPaginacao(produtosUnicos.length);
 }
 
-// 4. CONTROLADOR DA PÁGINA DE PRODUTO
+function renderizarPaginacao(totalItens) {
+    const totalPaginas = Math.ceil(totalItens / ITENS_POR_PAGINA);
+    const containers = [document.getElementById('pagination-top'), document.getElementById('pagination-bottom')];
+    
+    const html = totalPaginas <= 1 ? "" : `
+        <button class="page-btn" ${paginaAtual === 1 ? 'disabled' : ''} onclick="mudarPagina(${paginaAtual - 1})"> < </button>
+        ${Array.from({length: totalPaginas}, (_, i) => i + 1).map(i => `
+            <button class="page-btn ${i === paginaAtual ? 'active' : ''}" onclick="mudarPagina(${i})">${i}</button>
+        `).join('')}
+        <button class="page-btn" ${paginaAtual === totalPaginas ? 'disabled' : ''} onclick="mudarPagina(${paginaAtual + 1})"> > </button>
+    `;
+
+    containers.forEach(c => { if(c) c.innerHTML = html; });
+}
+
+window.mudarPagina = (n) => {
+    paginaAtual = n;
+    renderizarVitrine();
+    const hero = document.querySelector('.hero');
+    const dest = hero ? hero.offsetHeight - 60 : 0;
+    window.scrollTo({ top: dest, behavior: 'smooth' });
+};
+
+// 4. FILTROS E BUSCA
+function popularFiltroMarcas() {
+    const select = document.getElementById('filter-marca');
+    if (!select) return;
+    const marcas = [...new Set(todosProdutos.map(p => p.marca))].sort();
+    select.innerHTML = '<option value="">Todas as Marcas</option>' + 
+        marcas.map(m => `<option value="${m}">${m}</option>`).join('');
+}
+
+// --- CONFIGURAÇÃO DE EVENTOS ---
+function configurarEventosFiltro() {
+    const mainSearch = document.getElementById('main-search');
+    const secondarySearch = document.getElementById('secondary-search');
+
+    const configurarBusca = (input, permitirDropdown) => {
+        input?.addEventListener('input', (e) => {
+            const valor = e.target.value;
+            
+            // Sincroniza os inputs
+            if(mainSearch) mainSearch.value = valor;
+            if(secondarySearch) secondarySearch.value = valor;
+
+            // Chama o filtro passando se deve ou não mostrar o dropdown
+            aplicarFiltros('search', permitirDropdown);
+        });
+    };
+
+    configurarBusca(mainSearch, true);  // Barra principal: ABRE dropdown
+    configurarBusca(secondarySearch, false); // Barra secundária: NÃO abre dropdown
+
+    // Filtros de baixo
+    ['filter-marca', 'filter-genero', 'filter-tipo'].forEach(id => {
+        document.getElementById(id)?.addEventListener('change', () => aplicarFiltros('select'));
+    });
+}
+
+// --- FUNÇÃO MESTRE DE FILTRAGEM (VERSÃO DEFINITIVA) ---
+function aplicarFiltros(origem, permitirDropdown = true) {
+    // 1. Captura de elementos e checagem de página
+    const elBusca = document.getElementById('main-search');
+    const elMarca = document.getElementById('filter-marca');
+    const elGenero = document.getElementById('filter-genero');
+    const elTipo = document.getElementById('filter-tipo');
+    const dropdown = document.getElementById('search-dropdown');
+    const grid = document.getElementById('perfume-grid');
+
+    // 2. Define o termo de busca (usamos let para poder ler em qualquer lugar da função)
+    let termo = elBusca?.value.toLowerCase().trim() || "";
+
+    // 3. Lógica de prioridade: Se digitar, limpa selects (visual e valor)
+    if (origem === 'search' && termo.length > 0) {
+        if (elMarca) elMarca.value = "";
+        if (elTipo) elTipo.value = "";
+    }
+
+    // 4. Captura valores atuais para o filtro
+    const marca = elMarca?.value || "";
+    const genero = elGenero?.value || "";
+    const tipo = elTipo?.value || "";
+
+    // 5. Filtra os produtos globalmente (funciona em qualquer página)
+    produtosFiltrados = todosProdutos.filter(p => {
+        const nomeOuMarca = (p.nome + " " + p.marca).toLowerCase();
+        const matchTexto = termo === "" || nomeOuMarca.includes(termo);
+        const matchMarca = marca === "" || p.marca === marca;
+        const matchGenero = genero === "" || p.genero.toUpperCase().includes(genero.toUpperCase());
+        const matchTipo = tipo === "" || p.tipo === tipo;
+        
+        return matchTexto && matchMarca && matchGenero && matchTipo;
+    });
+
+    // 6. Atualiza a Vitrine (APENAS se o grid existir na página atual)
+    if (grid) {
+        paginaAtual = 1;
+        renderizarVitrine();
+    }
+
+    // 7. Gerencia o Dropdown (Se houver container de dropdown na página)
+    if (dropdown) {
+        if (termo.length >= 2 && permitirDropdown) {
+            const sugestoes = produtosFiltrados.slice(0, 5);
+            renderizarConteudoDropdown(sugestoes, dropdown);
+            dropdown.classList.add('active');
+        } else {
+            dropdown.classList.remove('active');
+        }
+    }
+}
+
+// --- RENDERIZAÇÃO DO DROPDOWN ---
+function renderizarConteudoDropdown(lista, container) {
+    if (!container) return;
+
+    if (lista.length === 0) {
+        container.innerHTML = '<p style="padding:20px; color:#888; text-align:center;">Nenhum perfume encontrado...</p>';
+        return;
+    }
+
+    const htmlProdutos = lista.map((p, index) => `
+        <div class="suggestion-item" onclick="abrirProduto('${p.id}')" style="animation-delay: ${index * 0.05}s">
+            <img src="${p.imagem}" style="width:45px; height:45px; border-radius:5px; object-fit:cover;">
+            <div class="suggestion-info">
+                <h4 style="margin:0; font-size:0.9rem;">${p.nome}</h4>
+                <small>${p.marca} - ${p.ml}</small>
+            </div>
+        </div>
+    `).join('');
+
+    container.innerHTML = htmlProdutos + `
+        <button onclick="irParaVitrine()" class="btn-ver-todos-dropdown">
+            VER TODOS OS ${produtosFiltrados.length} RESULTADOS
+        </button>
+    `;
+}
+
+// Fecha o dropdown ao clicar fora dele
+document.addEventListener('click', (event) => {
+    const dropdown = document.getElementById('search-dropdown');
+    const inputBusca = document.getElementById('main-search');
+    const inputSecundario = document.getElementById('secondary-search');
+
+    // Se o clique NÃO foi no dropdown e NÃO foi em nenhum dos inputs de busca
+    if (dropdown && 
+        !dropdown.contains(event.target) && 
+        !inputBusca?.contains(event.target) && 
+        !inputSecundario?.contains(event.target)) {
+        
+        dropdown.classList.remove('active');
+    }
+});
+
+// Reabre o dropdown se o usuário clicar de volta no input e já houver texto
+document.getElementById('main-search')?.addEventListener('focus', (e) => {
+    if (e.target.value.length >= 2) {
+        document.getElementById('search-dropdown')?.classList.add('active');
+    }
+});
+
+// Função para resetar tudo
+window.limparTodosFiltros = () => {
+    const elBusca = document.getElementById('main-search');
+    const elMarca = document.getElementById('filter-marca');
+    const elGenero = document.getElementById('filter-genero');
+    const elTipo = document.getElementById('filter-tipo');
+
+    // Reseta os valores visualmente no HTML
+    if (elBusca) elBusca.value = "";
+    if (elMarca) elMarca.value = "";
+    if (elGenero) elGenero.value = "";
+    if (elTipo) elTipo.value = "";
+
+    // Fecha o dropdown se estiver aberto
+    document.getElementById('search-dropdown')?.classList.remove('active');
+
+    // Chama a função de filtro para atualizar a vitrine e mostrar todos os perfumes
+    aplicarFiltros('select'); 
+};
+
+// --- FUNÇÃO DE SCROLL (IR PARA VITRINE) ---
+window.irParaVitrine = () => {
+    const grid = document.getElementById('perfume-grid');
+    const termo = document.getElementById('main-search')?.value || "";
+
+    if (grid) {
+        // Se estiver na HOME: apenas rola até os produtos
+        document.getElementById('search-dropdown')?.classList.remove('active');
+        const headerHeight = document.querySelector('.header')?.offsetHeight || 80;
+        const offset = grid.getBoundingClientRect().top + window.pageYOffset - headerHeight - 20;
+        window.scrollTo({ top: offset, behavior: 'smooth' });
+    } else {
+        // Se estiver no PRODUCT.HTML: redireciona para a home com o termo de busca
+        window.location.href = `index.html?busca=${encodeURIComponent(termo)}`;
+    }
+};
+// 5. CARRINHO DE COMPRAS
+function salvarEAtualizarCarrinho() {
+    localStorage.setItem('coashy_cart', JSON.stringify(carrinho));
+    atualizarBadge();
+    renderizarCarrinhoLateral();
+}
+
+function atualizarBadge() {
+    const total = carrinho.reduce((acc, item) => acc + item.quantidade, 0);
+    document.querySelectorAll('.badge').forEach(b => b.innerText = total);
+}
+
+window.addToCart = (id) => {
+    const produto = todosProdutos.find(p => p.id === id);
+    if (!produto) return;
+
+    const item = carrinho.find(i => i.id === id);
+    if (item) item.quantidade++;
+    else carrinho.push({ ...produto, quantidade: 1 });
+
+    salvarEAtualizarCarrinho();
+    toggleCart(true); // Abre o carrinho automaticamente
+};
+
+function renderizarCarrinhoLateral() {
+    const container = document.getElementById('cart-items');
+    const totalVal = document.getElementById('cart-total-val');
+    if (!container) return;
+
+    if (carrinho.length === 0) {
+        container.innerHTML = `<p style="text-align:center; padding:40px; color:#94a3b8;">Carrinho vazio.</p>`;
+        if (totalVal) totalVal.innerText = "R$ 0,00";
+        return;
+    }
+
+    container.innerHTML = carrinho.map(item => `
+        <div class="cart-item">
+            <img src="${item.imagem}">
+            <div class="cart-item-info">
+                <h4>${item.nome}</h4>
+                <div class="qtd-controls">
+                    <button onclick="alterarQtd('${item.id}', -1)">-</button>
+                    <span>${item.quantidade}</span>
+                    <button onclick="alterarQtd('${item.id}', 1)">+</button>
+                </div>
+            </div>
+            <div class="cart-item-price">
+                <p>R$ ${(item.preco * item.quantidade).toFixed(2).replace('.', ',')}</p>
+                <button class="remove-btn" onclick="removerDoCarrinho('${item.id}')">Remover</button>
+            </div>
+        </div>
+    `).join('');
+
+    const total = carrinho.reduce((acc, item) => acc + (item.preco * item.quantidade), 0);
+    if (totalVal) totalVal.innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
+window.alterarQtd = (id, delta) => {
+    const item = carrinho.find(i => i.id === id);
+    if (item) {
+        item.quantidade += delta;
+        if (item.quantidade <= 0) removerDoCarrinho(id);
+        else salvarEAtualizarCarrinho();
+    }
+};
+
+window.removerDoCarrinho = (id) => {
+    carrinho = carrinho.filter(i => i.id !== id);
+    salvarEAtualizarCarrinho();
+};
+
+// 6. UI E NAVEGAÇÃO (HEADER/MENU)
+function toggleCart(forceOpen = null) {
+    const cart = document.getElementById('side-cart');
+    const overlay = document.getElementById('cart-overlay');
+    if (!cart || !overlay) return;
+
+    const shouldOpen = forceOpen !== null ? forceOpen : !cart.classList.contains('active');
+    
+    cart.classList.toggle('active', shouldOpen);
+    overlay.classList.toggle('active', shouldOpen);
+    document.body.style.overflow = shouldOpen ? 'hidden' : '';
+}
+
+function toggleMenu() {
+    document.getElementById('main-nav')?.classList.toggle('active');
+}
+
+// Smart Header
+let lastScroll = 0;
+window.addEventListener('scroll', () => {
+    const header = document.querySelector('.header');
+    if (!header || document.querySelector('.nav-links.active')) return;
+
+    let st = window.pageYOffset || document.documentElement.scrollTop;
+    
+    header.classList.toggle('scrolled', st > 50);
+    
+    if (st > 200) {
+        header.classList.toggle('header-hidden', st > lastScroll);
+    } else {
+        header.classList.remove('header-hidden');
+    }
+    lastScroll = st <= 0 ? 0 : st;
+}, { passive: true });
+
+// 7. PÁGINA DE PRODUTO
 function iniciarPaginaProduto() {
     const container = document.getElementById('product-details');
     if (!container) return;
@@ -175,18 +433,21 @@ function iniciarPaginaProduto() {
         const infoFixacao = CONFIG_FIXACAO[produto.tipo] || CONFIG_FIXACAO['DEFAULT'];
         const variantes = todosProdutos.filter(p => p.nome === produto.nome);
 
+        // Lógica de Cores por Gênero
         const generoTexto = (produto.genero || "").toUpperCase();
-        let corFundo = "#f1f5f9"; // Cinza (Unissex/Default)
+        let corFundo = "#f1f5f9"; // Default Unissex
         let corTexto = "#475569";
+        let classeGenero = "gender-unissex";
 
         if (generoTexto.includes("FEM")) {
-            corFundo = "#fce7f3"; // Rosa pastel
+            corFundo = "#fce7f3"; 
             corTexto = "#be185d";
+            classeGenero = "gender-fem";
         } else if (generoTexto.includes("MASC")) {
-            corFundo = "#dbeafe"; // Azul pastel
+            corFundo = "#dbeafe"; 
             corTexto = "#1d4ed8";
+            classeGenero = "gender-masc";
         }
-
 
         container.innerHTML = `
             <div class="product-grid-detail">
@@ -204,15 +465,15 @@ function iniciarPaginaProduto() {
                             ${variantes.length > 1 ? `
                                 <div class="size-selector" style="margin: 0; display: flex; gap: 10px; align-items: center;">
                                      ${variantes.map(v => `
-                                    <button class="size-option ${v.id === produto.id ? 'active' : ''}" 
+                                    <button class="size-option ${v.id === idUrl ? 'active' : ''} ${classeGenero}" 
                                     style="margin: 0;"
                                     onclick="window.location.href='produto.html?id=${v.id}'">
                                     ${v.ml}
-                                     </button>
+                                    </button>
                                     `).join('')}
                                 </div>
                             ` : `
-                             <span style="font-size: 1.1rem; font-weight: 600; color: #64748b; line-height: 1;">${produto.ml}</span>
+                                <span style="font-size: 1.1rem; font-weight: 600; color: #64748b; line-height: 1;">${produto.ml}</span>
                             `}
                         </div>
     
@@ -252,241 +513,62 @@ function iniciarPaginaProduto() {
                 </div>
             </div>
         `;
-        // Dispara a animação após um pequeno delay para garantir que o HTML foi renderizado
+        
         setTimeout(() => {
             const barra = document.getElementById('fixation-anim');
-            if (barra) {
-                barra.style.width = `${infoFixacao.porcentagem}%`;
-            }
+            if (barra) barra.style.width = `${infoFixacao.porcentagem}%`;
         }, 100);
     } else {
         container.innerHTML = `<p style="text-align:center; padding: 100px;">Produto não encontrado.</p>`;
     }
-    
 }
 
-// 5. INICIALIZAÇÃO
-document.addEventListener('DOMContentLoaded', async () => {
+// 8. INICIALIZAÇÃO UNIFICADA
+async function inicializar() {
+    // Busca os dados da planilha
     todosProdutos = await buscarDados();
     produtosFiltrados = [...todosProdutos];
 
-    if (window.location.pathname.includes('produto.html')) {
+    const isProductPage = window.location.pathname.includes('produto.html');
+    
+    // 1. Lógica de busca vinda de outra página (via URL)
+    const urlParams = new URLSearchParams(window.location.search);
+    const buscaDaUrl = urlParams.get('busca');
+    const inputBusca = document.getElementById('main-search');
+
+    if (buscaDaUrl && inputBusca) {
+        inputBusca.value = buscaDaUrl;
+        // Não precisamos de setTimeout aqui pois já estamos dentro do inicializar (async)
+        aplicarFiltros('search');
+    }
+
+    // 2. Configura os eventos de busca em ambas as páginas
+    configurarEventosFiltro();
+
+    // 3. Renderiza conforme a página atual
+    if (isProductPage) {
         iniciarPaginaProduto();
     } else {
-        iniciarHome();
-    }
-});
-
-function toggleCart() {
-    const cart = document.getElementById('side-cart');
-    const overlay = document.getElementById('cart-overlay');
-    
-    // Verifica se os elementos existem para evitar erros no console
-    if (!cart || !overlay) return;
-
-    // Alterna a classe 'active' no carrinho
-    cart.classList.toggle('active');
-
-    // Lógica para mostrar/esconder o overlay e travar o scroll do site
-    if (cart.classList.contains('active')) {
-        overlay.classList.add('active');
-        document.body.style.overflow = 'hidden'; // Impede o fundo de rolar
-    } else {
-        overlay.classList.remove('active');
-        document.body.style.overflow = ''; // Devolve o scroll ao site
-    }
-}
-
-
-// VARIÁVEL GLOBAL DO CARRINHO
-let carrinho = JSON.parse(localStorage.getItem('coashy_cart')) || [];
-
-// FUNÇÃO PARA ADICIONAR
-window.addToCart = (id) => {
-    const produto = todosProdutos.find(p => p.id === id);
-    if (!produto) return;
-
-    const itemNoCarrinho = carrinho.find(item => item.id === id);
-    // Abrir o carrinho e o overlay
-    const cart = document.getElementById('side-cart');
-    const overlay = document.getElementById('cart-overlay');
-
-    if (cart && overlay) {
-        cart.classList.add('active');
-        overlay.classList.add('active');
-        document.body.style.overflow = 'hidden'; // Trava o scroll
+        popularFiltroMarcas();
+        renderizarVitrine();
     }
     
-
-    if (itemNoCarrinho) {
-        itemNoCarrinho.quantidade += 1;
-    } else {
-        carrinho.push({
-            id: produto.id,
-            nome: produto.nome,
-            marca: produto.marca,
-            preco: produto.preco,
-            imagem: produto.imagem,
-            ml: produto.ml,
-            quantidade: 1
-        });
-    }
-
-    salvarEAtualizar();
-    abrirCart(); // Abre o carrinho lateral automaticamente ao adicionar
-};
-
-// SALVAR NO NAVEGADOR E ATUALIZAR TELA
-function salvarEAtualizar() {
-    localStorage.setItem('coashy_cart', JSON.stringify(carrinho));
-    renderizarCarrinho();
+    // 4. Atualiza componentes de UI
     atualizarBadge();
+    renderizarCarrinhoLateral();
 }
 
-function atualizarBadge() {
-    const badges = document.querySelectorAll('.badge');
-    const totalItens = carrinho.reduce((acc, item) => acc + item.quantidade, 0);
-    badges.forEach(b => b.innerText = totalItens);
-}
+// Comandos de ação global
+window.abrirProduto = (id) => window.location.href = `produto.html?id=${id}`;
 
-function abrirCart() {
-    const cart = document.getElementById('side-cart');
-    if (cart) cart.classList.add('active');
-}
-
-// RENDERIZAR ITENS NO CARRINHO LATERAL
-function renderizarCarrinho() {
-    const container = document.getElementById('cart-items');
-    const totalElement = document.getElementById('cart-total-val');
-    if (!container) return;
-
-    if (carrinho.length === 0) {
-        container.innerHTML = `<p style="text-align:center; padding: 40px; color: #94a3b8;">Seu carrinho está vazio.</p>`;
-        if (totalElement) totalElement.innerText = "R$ 0,00";
-        return;
-    }
-
-    container.innerHTML = carrinho.map(item => `
-            <div class="cart-item">
-                <img src="${item.imagem}" alt="${item.nome}">
-                
-                <div class="cart-item-info">
-                    <h4>${item.nome}</h4>
-                    <small style="color: #888;">${item.ml}</small>
-                    
-                    <div style="display: flex; align-items: center; gap: 10px; margin-top: 8px;">
-                        <button onclick="alterarQtd('${item.id}', -1)" style="border:1px solid #ddd; background:none; padding:2px 8px; cursor:pointer;">-</button>
-                        <span>${item.quantidade}</span>
-                        <button onclick="alterarQtd('${item.id}', 1)" style="border:1px solid #ddd; background:none; padding:2px 8px; cursor:pointer;">+</button>
-                    </div>
-                </div>
-
-                <div class="cart-item-price">
-                    <p>R$ ${(item.preco * item.quantidade).toFixed(2).replace('.', ',')}</p>
-                    <button onclick="removerDoCarrinho('${item.id}')" style="color:#ff4444; background:none; border:none; font-size:11px; cursor:pointer;">Remover</button>
-                </div>
-            </div>
-        `).join('');
-
-    const total = carrinho.reduce((acc, item) => acc + (item.preco * item.quantidade), 0);
-    if (totalElement) totalElement.innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-}
-
-// FUNÇÕES DE MANIPULAÇÃO DO CARRINHO
-window.alterarQtd = (id, delta) => {
-    const item = carrinho.find(i => i.id === id);
-    if (item) {
-        item.quantidade += delta;
-        if (item.quantidade <= 0) {
-            removerDoCarrinho(id);
-        } else {
-            salvarEAtualizar();
-        }
-    }
-};
-
-window.removerDoCarrinho = (id) => {
-    carrinho = carrinho.filter(i => i.id !== id);
-    salvarEAtualizar();
-};
-
-// FINALIZAR PEDIDO VIA WHATSAPP
 window.finalizarPedido = () => {
-    if (carrinho.length === 0) return alert("Seu carrinho está vazio!");
-
-    let mensagem = "Olá Coashy! Gostaria de fazer um pedido:\n\n";
-    let total = 0;
-
-    carrinho.forEach(item => {
-        mensagem += `• ${item.nome} (${item.ml}) - Qtd: ${item.quantidade}x\n`;
-        total += item.preco * item.quantidade;
-    });
-
-    mensagem += `\n*Total: R$ ${total.toFixed(2).replace('.', ',')}*`;
-    
-    const fone = "5551994727873"; // COLOQUE SEU WHATSAPP AQUI (DDI + DDD + NUMERO)
-    const link = `https://wa.me/${fone}?text=${encodeURIComponent(mensagem)}`;
-    
-    window.open(link, '_blank');
+    if (carrinho.length === 0) return alert("Carrinho vazio!");
+    let msg = "Olá Coashy! Gostaria de fazer um pedido:\n\n" + 
+               carrinho.map(i => `• ${i.nome} (${i.ml}) - ${i.quantidade}x`).join('\n');
+    const total = carrinho.reduce((acc, i) => acc + (i.preco * i.quantidade), 0);
+    msg += `\n\n*Total: R$ ${total.toFixed(2).replace('.', ',')}*`;
+    window.open(`https://wa.me/5551994727873?text=${encodeURIComponent(msg)}`, '_blank');
 };
 
-// Chamar atualização ao carregar a página para mostrar badge e itens salvos
-document.addEventListener('DOMContentLoaded', () => {
-    atualizarBadge();
-    renderizarCarrinho();
-});
-
-
-
-// Lógica de Scroll: Transparência e Esconder/Mostrar
-let lastScrollTop = 0;
-const header = document.querySelector('.header');
-
-window.addEventListener('scroll', () => {
-    // Se o menu mobile estiver aberto, não escondemos o header para não bugar
-    const navLinks = document.querySelector('.nav-links');
-    if (navLinks && navLinks.classList.contains('active')) return;
-
-    let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-
-    // 1. Lógica de Transparência (Fica branco após 50px)
-    if (scrollTop > 50) {
-        header.classList.add('scrolled');
-    } else {
-        header.classList.remove('scrolled');
-    }
-
-    // 2. Lógica de Esconder/Mostrar (Smart Header)
-    // Só começa a esconder depois de passar o tamanho do banner (ex: 200px)
-    if (scrollTop > 200) {
-        if (scrollTop > lastScrollTop) {
-            // Scroll para baixo - Adiciona a classe que move o header para cima
-            header.classList.add('header-hidden');
-        } else {
-            // Scroll para cima - Remove a classe para ele voltar
-            header.classList.remove('header-hidden');
-        }
-    } else {
-        // Se estiver lá no topo, ele tem que estar visível
-        header.classList.remove('header-hidden');
-    }
-
-    lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
-}, { passive: true });
-
-
-
-
-//Fazer botao mobile MENU
-// Função para o Menu Mobile
-document.addEventListener('DOMContentLoaded', () => {
-    // Procure pelo botão que tem a classe .menu-toggle ou o ícone de menu
-    const menuBtn = document.querySelector('.menu-toggle') || document.querySelector('.btn-menu-mobile');
-    const navLinks = document.querySelector('.nav-links');
-
-    if (menuBtn && navLinks) {
-        menuBtn.onclick = function() {
-            navLinks.classList.toggle('active');
-        };
-    }
-});
+// Disparo inicial
+document.addEventListener('DOMContentLoaded', inicializar);
