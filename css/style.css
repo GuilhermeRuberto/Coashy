@@ -13,7 +13,7 @@ html {
 :root {
   --blue-primary: #0F172A;
   --blue-secondary: #334155;
-  --off-white: #eeecd3;
+  --off-white: #e7e6db;
   --white: #FFFFFF;
   --gray-text: #334155;
   --gray-light: #94A3B8;
@@ -90,7 +90,7 @@ html, body {
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    max-width: 1400px;
+    max-width: 1600px;
     margin: 0 auto;
     padding: 0 30px;
 }
@@ -287,10 +287,14 @@ html, body {
 /* Configuração da Grade Principal */
 #perfume-grid {
   display: grid;
-  /* Criando as 5 colunas */
-  grid-template-columns: repeat(5, 1fr); 
-  gap: 25px;
-  transition: opacity 0.4s ease, transform 0.4s ease;
+    /* Em telas grandes, permite que o grid chegue a 1600px ou use 90% da tela */
+    max-width: 1600px !important; 
+    width: 95%;
+    margin: 0 auto;
+    /* Ajusta o número de colunas automaticamente conforme o espaço */
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 30px;
+    padding: 40px 0;
 }
 
 #perfume-grid.fade-out {
@@ -636,12 +640,19 @@ html, body {
 
 /* Container Geral */
 .filters-container {
-    max-width: 1200px;
-    margin: 20px auto;
-    padding: 0 20px;
+    max-width: 1600px;
+    width: 95%;
+    margin: 0 auto 30px auto;
     display: flex;
     flex-direction: column;
+    gap: 20px;
+}
+
+.selects-grid {
+    display: flex;
+    flex-wrap: wrap;
     gap: 15px;
+    justify-content: flex-start; /* Alinha os filtros à esquerda acompanhando o grid */
 }
 
 /* Barra de Busca - Voltando ao tamanho original */

@@ -88,8 +88,6 @@ function renderizarVitrine() {
     grid.style.maxWidth = "1200px";
     grid.style.margin = "0 auto";
     grid.style.display = "grid";
-    document.body.style.backgroundColor = "#eeecd3"; // Fundo da página escuro
-    grid.style.backgroundColor = "#eeecd3";        // Fundo do grid escuro
     grid.style.padding = "40px 20px";              // Mais respiro vertical
 
     const produtosUnicos = obterProdutosUnicos(produtosFiltrados);
